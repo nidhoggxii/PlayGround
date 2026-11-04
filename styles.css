@@ -79,6 +79,18 @@ p { margin: 0; }
   width: min(1120px, 100%);
   margin: 0 auto 16px;
 }
+/* Sulla mappa lunga il topbar resta visibile mentre si scorre verso la tappa. */
+body[data-screen="map"] .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 6px 0;
+  margin-bottom: 10px;
+  background: linear-gradient(180deg, #0a0e14 0%, #0a0e14 84%, rgba(10,14,20,.92) 100%);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(232,222,198,.06);
+  box-shadow: 0 8px 18px rgba(0,0,0,.2);
+}
 
 .topbar .brand {
   display: flex;
@@ -1439,8 +1451,11 @@ button.game-card:active { transform: translateY(-1px) scale(.99); }
   .energy-orb .e-label { font-size: 5.5px; }
   .end-turn-wrap { flex: 1; flex-direction: row; align-items: center; justify-content: flex-end; gap: 8px; }
   .end-turn-btn { min-width: 90px; min-height: 42px; font-size: 10.5px; padding: 5px 8px; }
-  .turn-indicator { font-size: 7px; }
-  .battle-footer { padding-left: 6px; padding-right: 6px; }
+  .turn-indicator { font-size: 7px; white-space: nowrap; }
+  .turn-indicator .t-label { display: none; }
+  .turn-indicator .t-num::before { content: 'T'; }
+  .end-turn-wrap { gap: 6px; }
+  .battle-footer { padding-left: 6px; padding-right: 8px; }
   .reward-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
   .reward-cards .game-card .card-text { display: none; }
   .reward-cards .game-card .card-art { height: 26%; margin-top: 15px; }

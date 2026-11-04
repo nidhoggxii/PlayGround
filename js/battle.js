@@ -91,7 +91,12 @@ function dealDamage(unit, amount) {
 
 function removeUnit(side, row, col) {
   const s = sideState(side)
-  if (s) s.units[row][col] = null
+  if (!s) return
+  const unit = s.units[row][col]
+  s.units[row][col] = null
+  // La carta di un'unità caduta torna negli scarti: senza questo ricircolo
+  // il mazzo (12 carte per 9 slot) si esaurisce e la mano resta vuota.
+  if (unit) s.discard.push(makeCardInstance(unit.cardId, unit.upgraded))
 }
 
 function unitAt(side, row, col) {
@@ -264,7 +269,9 @@ function triggerDeploy(side, unit) {
 async function triggerEnd(side) {
   const b = state.battle
   if (!b) return
-  for (const row of ['support', 'supply']) {
+  // Anche la prima linea può avere effetti di fine turno (es. Falange, Berserker):
+  // vanno risolti prima degli attacchi, altrimenti non si attiverebbero mai.
+  for (const row of ['support', 'supply', 'front']) {
     for (let col = 0; col < 3; col++) {
       const unit = unitAt(side, row, col)
       if (!unit) continue
@@ -603,7 +610,7 @@ export async function endTurn() {
   b.phase = 'resolving'
   state.selectedCard = null
   discardHand('player')
-  addLog('Termini il turno. Supporto e rifornimento si attivano, poi la prima linea attacca.')
+  addLog('Termini il turno. Gli effetti di fine turno si attivano, poi la prima linea attacca.')
   hooks.render()
   await sleep(320)
 

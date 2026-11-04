@@ -160,6 +160,22 @@ export function loadSavedRun() {
     if (!Number.isFinite(run.morale) || !Number.isFinite(run.floor)) return null
     run.deck = run.deck.filter((inst) => inst && getCard(inst.id))
     if (!run.deck.length) return null
+    // Normalizza i salvataggi parziali o provenienti da versioni precedenti.
+    run.maxMorale = Number.isFinite(run.maxMorale) ? Math.max(1, run.maxMorale) : START_MORALE
+    run.morale = clamp(run.morale, 0, run.maxMorale)
+    run.gold = Number.isFinite(run.gold) ? Math.max(0, run.gold) : START_GOLD
+    run.floor = clamp(Math.floor(run.floor), 0, run.map.length)
+    run.path = Array.isArray(run.path) ? run.path : []
+    run.banners = Array.isArray(run.banners) ? run.banners.filter((id) => BANNER_BY_ID[id]) : []
+    run.stats = {
+      battlesWon: 0,
+      elitesWon: 0,
+      cardsPlayed: 0,
+      damageDealt: 0,
+      healed: 0,
+      ...(run.stats && typeof run.stats === 'object' ? run.stats : {}),
+    }
+    run.inProgress = true
     return run
   } catch {
     return null

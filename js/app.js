@@ -285,14 +285,30 @@ function chooseEventOption(index) {
     return
   }
   const result = option.apply(run)
+  // L'evento si considera concluso appena scegli: salviamo subito l'esito,
+  // così uscire durante il testo di risultato non permette di ripeterlo.
+  completeNode(node)
+  state.eventNode = node
   state.eventResult = result || 'La strada riprende.'
+  state.screen = 'event'
   playSound('map')
   render()
 }
 
 function eventContinue() {
-  const node = state.eventNode
-  completeNodeFlow(node, 'La strada continua.', 'map')
+  if (!state.eventNode) {
+    state.screen = 'map'
+    render()
+    return
+  }
+  state.eventNode = null
+  state.eventResult = null
+  state.screen = 'map'
+  state.modal = null
+  saveRun()
+  render()
+  playSound('map')
+  showToast('La strada continua.', 'good')
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -322,6 +338,10 @@ function handleBattleWin(node) {
 
   const cardOptions = run.deck.length < DECK_LIMIT ? cardRewardOptions(run, 3) : []
   const bannerOptions = node.type === 'elite' ? pickBannerOptions(run, 2) : []
+  // Segna subito la tappa come completata: se il giocatore chiude la scheda
+  // o torna al titolo durante la scelta della ricompensa, non può rigiocare
+  // la stessa battaglia (e non perde oro/Morale già ottenuti).
+  completeNode(node)
   state.reward = {
     node,
     gold,
@@ -352,6 +372,7 @@ function pickReward(cardId) {
   if (!def) return
   if (run.deck.length < DECK_LIMIT) {
     run.deck.push(makeCardInstance(def.id))
+    saveRun()
     showToast(`${def.name} entra nel mazzo.`, 'good')
     playSound('unlock')
   } else {
@@ -387,6 +408,7 @@ function pickBanner(bannerId) {
       run.maxMorale += 6
       healRun(run, 6)
     }
+    saveRun()
     playSound('unlock')
     showToast(`Stendardo ottenuto: ${banner.name}`, 'good')
   }
@@ -396,9 +418,13 @@ function pickBanner(bannerId) {
 function completeReward() {
   const reward = state.reward
   if (!reward) return
-  const node = reward.node
   state.reward = null
-  completeNodeFlow(node, 'Tappa completata. La strada prosegue.', 'map')
+  state.modal = null
+  state.screen = 'map'
+  saveRun()
+  render()
+  playSound('map')
+  showToast('Tappa completata. La strada prosegue.', 'good')
 }
 
 function finishRunNow(victory, reason) {
@@ -809,6 +835,8 @@ document.addEventListener('keydown', (event) => {
   }
   if (state.modal || state.screen !== 'battle') return
   if (event.key === ' ' || event.key === 'Enter') {
+    // Lascia che Invio/Spazio attivino il controllo che ha il focus.
+    if (event.target?.closest?.('button, a, input, select, textarea, [contenteditable]')) return
     event.preventDefault()
     if (state.battle && !state.battle.busy) {
       endTurn().catch((error) => console.error(error))

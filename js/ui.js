@@ -45,6 +45,7 @@ export function showToast(message, type = '') {
 export function render() {
   const app = document.getElementById('app')
   if (!app) return
+  const previousScreen = document.body.dataset.screen
   const prevHand = document.querySelector('.hand-scroll')
   const prevMain = document.querySelector('.battle-main')
   const handScroll = prevHand ? prevHand.scrollLeft : 0
@@ -58,6 +59,18 @@ export function render() {
     if (hand) hand.scrollLeft = handScroll
     const main = document.querySelector('.battle-main')
     if (main) main.scrollTop = mainScroll
+  }
+
+  // Su mobile la mappa è più alta dello schermo: quando si torna sulla mappa
+  // porta in vista la tappa corrente, senza disturbare chi sta già guardando.
+  if (state.screen === 'map' && previousScreen !== 'map') {
+    const current = document.querySelector('.floor-row.current')
+    if (current) {
+      const rect = current.getBoundingClientRect()
+      if (rect.top < 8 || rect.bottom > window.innerHeight - 8) {
+        current.scrollIntoView({ block: 'nearest' })
+      }
+    }
   }
   renderModal()
 }
@@ -427,9 +440,9 @@ function campScreen() {
         </div>
         <p class="node-text">Il fuoco crepita. Hai tempo per una sola cosa prima di ripartire. Scegli con cura: la strada non perdona.</p>
         <div class="choice-list">
-          <button type="button" class="choice" data-action="camp-rest" ${run.morale >= run.maxMorale && run.morale === run.maxMorale ? 'disabled' : ''}>
+          <button type="button" class="choice" data-action="camp-rest" ${run.morale >= run.maxMorale ? 'disabled' : ''}>
             <span class="choice-icon" aria-hidden="true">🔥</span>
-            <span class="choice-main"><span class="choice-label">Riposa accanto al fuoco</span><span class="choice-desc">Recupera ${Math.max(0, healAmount)} Morale (30% del massimo, minimo 8).</span></span>
+            <span class="choice-main"><span class="choice-label">Riposa accanto al fuoco</span><span class="choice-desc">${run.morale >= run.maxMorale ? 'Il Morale è già al massimo.' : `Recupera ${healAmount} Morale (30% del massimo, minimo 8).`}</span></span>
             <span class="choice-cost">${run.morale}/${run.maxMorale}</span>
           </button>
           <button type="button" class="choice" data-action="camp-upgrade" ${canUpgrade ? '' : 'disabled'}>

@@ -54,7 +54,7 @@ function helpModal() {
       <h3>Un turno</h3>
       <ul>
         <li>Hai <strong>3 Comando</strong> e peschi <strong>5 carte</strong>. Gioca le carte negli slot liberi della riga corretta.</li>
-        <li>Termina il turno: prima si attivano Supporto e Rifornimento, poi la Prima Linea attacca. Infine il nemico gioca e contrattacca.</li>
+        <li>Termina il turno: prima si attivano tutti gli effetti di fine turno (Supporto, Rifornimento e Prima Linea), poi la Prima Linea attacca. Infine il nemico gioca e contrattacca.</li>
         <li>Riduci il Morale nemico a <strong>0</strong> per vincere. Se il tuo Morale arriva a 0, la spedizione finisce.</li>
         <li>La mano viene scartata a fine turno: non accumulare carte inutilmente.</li>
       </ul>

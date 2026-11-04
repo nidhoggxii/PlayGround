@@ -165,7 +165,7 @@ export function renderBattleScreen() {
               TERMINA<br>TURNO
               <small>${b.busy ? 'risoluzione…' : 'assalto'}</small>
             </button>
-            <div class="turn-indicator">Turno <strong>${b.turn}</strong> · Pesca ${b.player.deck.length} · Scarti ${b.player.discard.length}</div>
+            <div class="turn-indicator"><span class="t-label">Turno </span><strong class="t-num">${b.turn}</strong> · Pesca ${b.player.deck.length} · Scarti ${b.player.discard.length}</div>
           </div>
         </div>
       </footer>
